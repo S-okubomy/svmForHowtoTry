@@ -44,7 +44,7 @@ public class GetWeightValService {
             break;
         case INDEPENDENT_ANS:
             // ================= 質問解析及び応答解析用の重み係数を作成する  =================
-            System.out.println("単独の応答解析");
+            System.out.println("単独の応答解析のみ");
             getWeightVal("independentAns");
             System.out.println("単独の応答解析  完了");
             break;
