@@ -10,6 +10,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 
+import javax.management.StringValueExp;
+
 import com.svm.interfaceEva.BaseEvaVal;
 import com.svm.util.MyFileUtil;
 
@@ -22,7 +24,7 @@ public class SvmEvaClass implements BaseEvaVal{
 
     public static final String SEIKAI = "T";
     public static final String FUSEIKAI = "F";
-    private static final int maxRoopCnt = 200;
+    private static final int maxRoopCnt = 10000;
     
     /* (非 Javadoc)
      * @see interfaceEva.BaseEvaVal#execute(double)
@@ -44,13 +46,13 @@ public class SvmEvaClass implements BaseEvaVal{
         
         LinkedHashMap<String,String[]> studyMap = null;
         try {
-            studyMap = MyFileUtil.readCsvFile(csvFileInput);
+            studyMap = MyFileUtil.readCsvCom(csvFileInput);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         //初期化
-        int vectorSu = studyMap.get("データNo").length - 3; //ベクトル数
+        int vectorSu = studyMap.get("1").length - 3; //ベクトル数   タイトル行より算出
         int[] vectorX1 = new int[vectorSu];
         int[] weightParam = new int[vectorSu];
         for(int i = 0; i < vectorSu; i++) { //ベクトルの数
@@ -59,7 +61,7 @@ public class SvmEvaClass implements BaseEvaVal{
         
         LinkedHashMap<String, int[]> weightParamMap = new LinkedHashMap<String, int[]>();
         for (String key : studyMap.keySet()) {
-            if (!"データNo".equals(studyMap.get(key)[0])) {
+            if (!"1".equals(key)) {
                 if (!weightParamMap.containsKey(studyMap.get(key)[2])) {
                     weightParamMap.put(studyMap.get(key)[2], weightParam.clone());
                 }
@@ -76,7 +78,7 @@ public class SvmEvaClass implements BaseEvaVal{
             boolean isFuseikai = false;
             for (int i = 0; i < maxRoopCnt; i++) { // 重み係数を1回だけではなく繰り返し修正することで正解率上げる
                 for (String key : studyMap.keySet()) {
-                    if (!"データNo".equals(studyMap.get(key)[0])) {
+                    if (!"1".equals(key)) {
                         countAll++;
                         //マップの配列を入れ替え
                         for(int ii = 0; ii < vectorSu; ii++) {
@@ -96,13 +98,13 @@ public class SvmEvaClass implements BaseEvaVal{
                                 }
                                 weightParamMap.put(keyWeightParam, weightParam.clone());
                                 // 画面に学習結果（判断）を表示
-                                System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類  " + keyWeightParam);
+                                System.out.println("判断NG  No" +  String.valueOf((Integer.valueOf(key)-1)) + " fx " + fxValue + " 分類  " + keyWeightParam);
          
                                 // 正解ラベル & 分類に一致→重み係数そのまま
                             } else if (SEIKAI.equals(studyMap.get(key)[1])
                                     && studyMap.get(key)[2].equals(keyWeightParam)) {
                                 evaValue = evaValue + 1;
-                                System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                                System.out.println("判断OK  No" + String.valueOf((Integer.valueOf(key)-1)) + " fx " + fxValue + " 分類 " + keyWeightParam);
                             
                                 isSeikai = true;
                                 
@@ -115,14 +117,22 @@ public class SvmEvaClass implements BaseEvaVal{
                                 }
                                 weightParamMap.put(keyWeightParam, weightParam.clone());
                                 // 画面に学習結果（判断）を表示
-                                System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類  " + keyWeightParam);
+                                System.out.println("判断NG  No" + String.valueOf((Integer.valueOf(key)-1)) + " fx " + fxValue + " 分類  " + keyWeightParam);
+                            } else if (FUSEIKAI.equals(studyMap.get(key)[1])
+                                    && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                                for(int ii = 0; ii < vectorSu; ii++) {
+                                    weightParam[ii] = weightParamMap.get(keyWeightParam)[ii] 
+                                            + ((-1) * Integer.valueOf(studyMap.get(key)[ii + 3]));
+                                }
+                                weightParamMap.put(keyWeightParam, weightParam.clone());
+                                System.out.println("判断NG  No" + String.valueOf((Integer.valueOf(key)-1)) + " fx " + fxValue + " 分類  " + keyWeightParam);
                             }
                         } else { // 誤りと判断した場合
                             // 不正解ラベル & 分類に一致→重み係数そのまま
                             if (FUSEIKAI.equals(studyMap.get(key)[1]) 
                                     && studyMap.get(key)[2].equals(keyWeightParam)) {
                                 evaValue = evaValue + 1;
-                                System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                                System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
                                 
                                 isFuseikai = true;
                                 
@@ -135,13 +145,17 @@ public class SvmEvaClass implements BaseEvaVal{
                                 }
                                 weightParamMap.put(keyWeightParam, weightParam.clone());
                                 // 画面に学習結果（判断）を表示
-                                System.out.println("判断NG  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                                System.out.println("判断NG  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
                                 
                             // 正解ラベル & 分類に不一致→重み係数そのまま
                             } else if (SEIKAI.equals(studyMap.get(key)[1])
                                     && !studyMap.get(key)[2].equals(keyWeightParam)) {
                                 evaValue = evaValue + 1;
-                                System.out.println("判断OK  No" + studyMap.get(key)[0] + " fx " + fxValue + " 分類 " + keyWeightParam);
+                                System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
+                            } else if (FUSEIKAI.equals(studyMap.get(key)[1])
+                                    && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                                evaValue = evaValue + 1;
+                                System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
                             }
                         }
                     }
@@ -154,12 +168,78 @@ public class SvmEvaClass implements BaseEvaVal{
             }
         }
         
+        printResultFx(vectorSu, gaParameter, weightParamMap, studyMap);
+        
+        
         System.out.println("個体の実値 " + evaValue + " 正解率" + dblToStr((evaValue/countAll) * 100) + "%");
         // 重み係数をCSVに出力する。
         outPutWeightValue(weightValName, weightParamMap, studyMap);
 
         return evaValue;
     }
+    
+    private void printResultFx(int vectorSu, double[] gaParameter, LinkedHashMap<String, int[]> weightParamMap
+            , LinkedHashMap<String,String[]> studyMap) {
+        
+        System.out.println("---------------------最終結果（independentAns）------------------");
+        // 重み係数のマップを分類ごとにループし、修正する。
+        for (String keyWeightParam : weightParamMap.keySet()) {
+            for (String key : studyMap.keySet()) {
+                if (!"1".equals(key)) {
+                    //マップの配列を入れ替え
+                    int[] vectorX1 = new int[vectorSu];
+                    for(int ii = 0; ii < vectorSu; ii++) {
+                        vectorX1[ii] = Integer.valueOf(studyMap.get(key)[ii + 3]);
+                    }
+                    // 決定関数を計算（判断基準）
+                    double fxValue = (double)getNaiseki(weightParamMap.get(keyWeightParam), vectorX1)
+                            + gaParameter[0];
+                    if (fxValue >= 0) { // 正しいと判断した場合
+                        // 不正解ラベル & 分類に一致→重み係数を修正
+                        if (FUSEIKAI.equals(studyMap.get(key)[1]) 
+                                && studyMap.get(key)[2].equals(keyWeightParam)) {
+                            // 画面に学習結果（判断）を表示
+                            System.out.println("判断NG  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類  " + keyWeightParam);
+     
+                            // 正解ラベル & 分類に一致→重み係数そのまま
+                        } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                && studyMap.get(key)[2].equals(keyWeightParam)) {
+                            System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
+                        // 正解ラベル & 分類に不一致→重み係数を修正
+                        } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                            // 画面に学習結果（判断）を表示
+                            System.out.println("判断NG  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類  " + keyWeightParam);
+                        } else if (FUSEIKAI.equals(studyMap.get(key)[1])
+                                && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                            System.out.println("判断NG  No" + String.valueOf((Integer.valueOf(key)-1)) + " fx " + fxValue + " 分類  " + keyWeightParam);
+                        }
+                    } else { // 誤りと判断した場合
+                        // 不正解ラベル & 分類に一致→重み係数そのまま
+                        if (FUSEIKAI.equals(studyMap.get(key)[1]) 
+                                && studyMap.get(key)[2].equals(keyWeightParam)) {
+                            System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
+                        // 正解ラベル & 分類に一致→重み係数を修正
+                        } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                && studyMap.get(key)[2].equals(keyWeightParam)) {
+                            // 画面に学習結果（判断）を表示
+                            System.out.println("判断NG  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
+                            
+                        // 正解ラベル & 分類に不一致→重み係数そのまま
+                        } else if (SEIKAI.equals(studyMap.get(key)[1])
+                                && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                            System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
+                        } else if (FUSEIKAI.equals(studyMap.get(key)[1])
+                                && !studyMap.get(key)[2].equals(keyWeightParam)) {
+                            System.out.println("判断OK  No" +String.valueOf((Integer.valueOf(key)-1))+ " fx " + fxValue + " 分類 " + keyWeightParam);
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    
 
     /**
      * 内積を計算する
@@ -185,9 +265,9 @@ public class SvmEvaClass implements BaseEvaVal{
         
         // タイトルラベルを書き込み
         for (String key : studyMap.keySet()) {
-            if ("データNo".equals(studyMap.get(key)[0])) {
+            if ("1".equals(key)) {
                 weightParamOut.append("質問分類" + ",");
-                for(int i = 0; i < studyMap.get("データNo").length - 3; i++) {
+                for(int i = 0; i < studyMap.get("1").length - 3; i++) {
                     weightParamOut.append(studyMap.get(key)[i + 3] + ",");
                 }
                 weightParamOut.append("\r\n");

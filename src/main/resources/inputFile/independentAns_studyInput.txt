@@ -14,6 +14,59 @@
 14,T,getMoney,Youtuberとして動画をアップする
 15,T,getMoney,テレビのコンテンツやニュースを配信する
 16,T,getMoney,オークションで物を売る
+x,T,getMoney,オークションで物を売る
+x,T,getMoney,治験や健康食品モニターで稼ぐ方法
+x,T,getMoney,アンケートサイトで稼ぐ方法
+x,T,getMoney,懸賞で稼ぐ方法
+x,F,getMoney,まっとうで、安全な方法です
+x,F,getMoney,なんてものまで出品されています
+x,F,getMoney,また、その人
+x,F,getMoney,突っ込ませない
+x,F,getMoney,自宅、図書館、カフェ、マンガ喫茶
+x,F,getMoney,たしか39800円でしたね
+x,F,getMoney,たしか39800円でしたね
+x,F,getMoney,たしか39800円でしたね
+x,F,getMoney,たしか39800円でしたね
+x,F,getMoney,そのうち49
+x,F,getMoney,0％〜18
+x,F,getMoney,5％〜18
+x,F,getMoney,⇒　資金集め100％ガイド
+x,F,getMoney, jp」です
+x,F,getMoney, jp」です
+x,F,getMoney, jp」です
+x,F,getMoney, jp」です
+x,F,getMoney,まっとうで、安全な方法です
+x,F,getMoney,残念ながら、全く稼げませんでした
+x,F,getMoney,まっとうで、安全な方法です
+x,F,getMoney,ということです
+x,F,getMoney,あからさまな文字数稼ぎも非承認となるので注意
+x,F,getMoney,ということです
+x,F,getMoney,しかし成功すれば月数十万円～数百万円まで目指せます
+x,F,getMoney,あなたに訊きたい、そこまでしてお金を稼ぎたいですか…と
+x,F,getMoney,本記事と合わせてご覧ください
+x,F,getMoney,が、実はお金を使わずに出来る方法があります
+x,F,getMoney,調査員になったつもりで厳しく評価します
+x,F,getMoney,本記事と合わせてご覧ください
+x,F,getMoney,友達に聞いてみるとおそらくこう返ってくると思います
+x,F,getMoney,本記事と合わせてご覧ください
+x,F,getMoney,正直とても細々とした戦略です
+x,F,getMoney,しかしお金がないなら仕方ありません
+x,F,getMoney,1000文字以上や専門的な内容だと数百円程度
+x,F,getMoney,オーラを消す
+x,F,getMoney,参考：主婦や無職の方でも取得可能
+x,F,getMoney,さらにその1年後に会社を退社
+x,F,getMoney,お金がほしい、助けてほしい・・・
+x,F,getMoney,2円程度と想定しましょう
+x,F,getMoney,このページの先頭へ
+x,F,getMoney,またショッピング・通販も出来ます
+x,F,getMoney,しかも給料は決して高くない
+x,F,getMoney,またショッピング・通販も出来ます
+x,F,getMoney,登録はもちろん無料です
+x,F,getMoney,アフィリエイトの基本 
+x,F,getMoney,終わったらアンケートを実施
+x,F,getMoney,懸賞って当たる？当たらない？本当に稼げるのか 
+x,F,getMoney,アコム　最大30日間金利0円 
+x,F,getMoney,月数万円～ 
 17,T,health,最寄り駅１つ前で歩いてみましょう
 18,T,health,入浴後のストレッチを行いましょう
 19,T,health,筋力トレーニングを取り入れるのもいいでしょう

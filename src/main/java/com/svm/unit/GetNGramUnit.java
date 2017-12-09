@@ -18,6 +18,8 @@ import com.svm.util.SelectWordUtil;
 public class GetNGramUnit {
     
     
+    private static final String HINSHI_REGEX = ".*名詞.*|動詞|.*助詞.*|未知語";
+    
     public static void main(String[] args) throws Exception {
 
         GetNGramUnit getNGramUnit = new GetNGramUnit();
@@ -60,7 +62,10 @@ public class GetNGramUnit {
 			String studyLine = studyMap.get(key)[3];
 			tagger.analyze(studyLine, tokens);
 			for (Token token : tokens) {
-				oneGramTitle.append(token.getSurface() + ",");
+			    String hinshi = token.getMorpheme().getPartOfSpeech().split("-")[0];
+			    if (hinshi.matches(HINSHI_REGEX)) {
+			        oneGramTitle.append(token.getSurface() + ",");
+			    }
 			}
 		}
 
@@ -70,8 +75,12 @@ public class GetNGramUnit {
 			String studyLine = studyMap.get(key)[3];
 			tagger.analyze(studyLine, tokens);
 			for (int i = 0; i < tokens.size() -1; i++) {
-				twoGramTitle.append(tokens.get(i).getSurface()); // 1単語目の出力
-				twoGramTitle.append(tokens.get(i + 1).getSurface() + ","); // 連結 2単語目の出力
+                String hinshi1 = tokens.get(i).getMorpheme().getPartOfSpeech().split("-")[0];
+                String hinshi2 = tokens.get(i + 1).getMorpheme().getPartOfSpeech().split("-")[0];
+                if (hinshi1.matches(HINSHI_REGEX) && hinshi2.matches(HINSHI_REGEX)) {
+                    twoGramTitle.append(tokens.get(i).getSurface()); // 1単語目の出力
+                    twoGramTitle.append(tokens.get(i + 1).getSurface() + ","); // 連結 2単語目の出力
+                }
 			}
 		}
 
@@ -81,9 +90,13 @@ public class GetNGramUnit {
 			String studyLine = studyMap.get(key)[3];
 			tagger.analyze(studyLine, tokens);
 			for (int i = 0; i < tokens.size() -1; i++) {
-				tangoHinshi.append(tokens.get(i).getSurface());  // 1単語目の出力
-				tangoHinshi.append("/");
-				tangoHinshi.append(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-") + ",");  // 連結 2単語目の出力
+                String hinshi1 = tokens.get(i).getMorpheme().getPartOfSpeech().split("-")[0];
+                String hinshi2 = tokens.get(i + 1).getMorpheme().getPartOfSpeech().split("-")[0];
+                if (hinshi1.matches(HINSHI_REGEX) && hinshi2.matches(HINSHI_REGEX)) {
+                    tangoHinshi.append(tokens.get(i).getSurface());  // 1単語目の出力
+                    tangoHinshi.append("/");
+                    tangoHinshi.append(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-") + ",");  // 連結 2単語目の出力
+                }
 			}
 		}
 		// 全部をまとめる
@@ -121,11 +134,14 @@ public class GetNGramUnit {
 			for (String oneGram : tmpOneGramTitle) {
 				isVectorFlag = false;
 				for (Token token : tokens) {
-					if (oneGram.equals(token.getSurface())) {
-						oneGramSujoVector.append("1,");
-						isVectorFlag = true;
-						break;
-					}
+				    String hinshi = token.getMorpheme().getPartOfSpeech().split("-")[0];
+				    if (hinshi.matches(HINSHI_REGEX)) {
+	                    if (oneGram.equals(token.getSurface())) {
+	                        oneGramSujoVector.append("1,");
+	                        isVectorFlag = true;
+	                        break;
+	                    }
+				    }
 				}
 				if (!isVectorFlag) {
 					oneGramSujoVector.append("0,");
@@ -137,14 +153,18 @@ public class GetNGramUnit {
 			for (String twoGram : tmpTwoGramTitle) {
 				isVectorFlag = false;
 				for (int i = 0; i < tokens.size() -1; i++) {
-					tmpRenketsu = new StringBuilder();
-					tmpRenketsu.append(tokens.get(i).getSurface()); // 1単語目の出力
-					tmpRenketsu.append(tokens.get(i + 1).getSurface()); // 連結 2単語目の出力
-					if (twoGram.equals(new String(tmpRenketsu))) {
-						twoGramSujoVector.append("1,");
-						isVectorFlag = true;
-						break;
-					}
+	                String hinshi1 = tokens.get(i).getMorpheme().getPartOfSpeech().split("-")[0];
+	                String hinshi2 = tokens.get(i + 1).getMorpheme().getPartOfSpeech().split("-")[0];
+	                if (hinshi1.matches(HINSHI_REGEX) && hinshi2.matches(HINSHI_REGEX)) {
+	                    tmpRenketsu = new StringBuilder();
+	                    tmpRenketsu.append(tokens.get(i).getSurface()); // 1単語目の出力
+	                    tmpRenketsu.append(tokens.get(i + 1).getSurface()); // 連結 2単語目の出力
+	                    if (twoGram.equals(new String(tmpRenketsu))) {
+	                        twoGramSujoVector.append("1,");
+	                        isVectorFlag = true;
+	                        break;
+	                    }
+	                }
 				}
 				if (!isVectorFlag) {
 					twoGramSujoVector.append("0,");
@@ -156,15 +176,19 @@ public class GetNGramUnit {
 			for (String TangoHinshiGram : tmpTangoHinshiGramTitle) {
 				isVectorFlag = false;
 				for (int i = 0; i < tokens.size() -1; i++) {
-					tmpRenketsu = new StringBuilder();
-					tmpRenketsu.append(tokens.get(i).getSurface()); // 1単語目の出力
-					tmpRenketsu.append("/");
-					tmpRenketsu.append(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-"));  // 連結 2単語目の出力
-					if (TangoHinshiGram.equals(new String(tmpRenketsu))) {
-						tangoHinshiSujoVector.append("1,");
-						isVectorFlag = true;
-						break;
-					}
+				    String hinshi1 = tokens.get(i).getMorpheme().getPartOfSpeech().split("-")[0];
+	                String hinshi2 = tokens.get(i + 1).getMorpheme().getPartOfSpeech().split("-")[0];
+	                if (hinshi1.matches(HINSHI_REGEX) && hinshi2.matches(HINSHI_REGEX)) {
+	                    tmpRenketsu = new StringBuilder();
+	                    tmpRenketsu.append(tokens.get(i).getSurface()); // 1単語目の出力
+	                    tmpRenketsu.append("/");
+	                    tmpRenketsu.append(SelectWordUtil.selectWord(tokens.get(i+1).getMorpheme().getPartOfSpeech(), "", "-"));  // 連結 2単語目の出力
+	                    if (TangoHinshiGram.equals(new String(tmpRenketsu))) {
+	                        tangoHinshiSujoVector.append("1,");
+	                        isVectorFlag = true;
+	                        break;
+	                    }
+	                }
 				}
 				if (!isVectorFlag) {
 					tangoHinshiSujoVector.append("0,");
